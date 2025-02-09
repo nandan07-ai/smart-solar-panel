@@ -21,7 +21,6 @@ Online Forums: Communities like Arduino, Raspberry Pi, or renewable energy forum
 Contact Developers: Users can reach out to the project maintainers for troubleshooting.
 
 Who Maintains and Contributes to the Project<br>
-
 S Nandan, Ujwal S, Ullas JK, Syed Maaz : Leading the development and improvements.
 Dr. Hemanth Kumar A R (Guide): Providing technical guidance and oversight.
 Mrs. Divya K.P. (Co-Guide): Assisting with project development and improvements.
