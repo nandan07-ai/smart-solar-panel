@@ -1,0 +1,114 @@
+#include <Servo.h> 
+// Pin Definitions 
+const int LDR1 = A0; // Top-Left 
+const int LDR2 = A1; // Top-Right 
+const int LDR3 = A2; // Bottom-Left 
+const int LDR4 = A3; // Bottom-Right 
+const int servoXPin = 9; // Horizontal Servo 
+const int servoYPin = 10; // Vertical Servo 
+// Thresholds and Time Variables 
+const int lightThreshold = 400; // Minimum light intensity to track 
+const int noLightTimeThreshold = 10000; // Time in ms to reset to default 
+position 
+unsigned long lastLightTime = 0; // Tracks last light detection time 
+// Servo Positions 
+int servoXPosition = 0; // Start at 0° (middle position) 
+int servoYPosition = 0; // Start at 0° (middle position) 
+// Servo Objects 
+Servo servoX;  
+Servo servoY; 
+ 
+ 
+                                                                            
+ 
+void setup() { 
+  pinMode(LDR1, INPUT); 
+  pinMode(LDR2, INPUT); 
+  pinMode(LDR3, INPUT); 
+  pinMode(LDR4, INPUT); 
+ 
+  servoX.attach(servoXPin); 
+  servoY.attach(servoYPin); 
+ 
+  // Set initial servo positions 
+  servoX.write(servoXPosition); 
+  servoY.write(servoYPosition); 
+  Serial.begin(9600); 
+} 
+ 
+void loop() { 
+  // Read light intensity from the 4 LDRs 
+  int lightTL = analogRead(LDR1); 
+  int lightTR = analogRead(LDR2); 
+  int lightBL = analogRead(LDR3); 
+  int lightBR = analogRead(LDR4); 
+ 
+                                                                             
+  
+ // Calculate average light intensity for each axis 
+  int lightTop = (lightTL + lightTR) / 2; 
+  int lightBottom = (lightBL + lightBR) / 2; 
+  int lightLeft = (lightTL + lightBL) / 2; 
+  int lightRight = (lightTR + lightBR) / 2; 
+ 
+  // Print light values for debugging 
+  Serial.print("Top: "); Serial.print(lightTop); 
+  Serial.print(" | Bottom: "); Serial.print(lightBottom); 
+  Serial.print(" | Left: "); Serial.print(lightLeft); 
+  Serial.print(" | Right: "); Serial.println(lightRight); 
+ 
+  // Check for light presence 
+  if (lightTop > lightThreshold || lightBottom > lightThreshold ||  
+      lightLeft > lightThreshold || lightRight > lightThreshold) { 
+    lastLightTime = millis(); // Reset the timer 
+    const int deadZone = 20; 
+ 
+    // Adjust X-axis (Horizontal movement) 
+    if (abs(lightLeft - lightRight) > deadZone) { 
+  if (lightLeft > lightRight && servoXPosition > 0) { 
+    
+                                                                              
+ 
+ servoXPosition--; 
+  } else if (lightRight > lightLeft && servoXPosition < 180) { 
+    servoXPosition++; 
+  } 
+} 
+   // Adjust Y-axis (Vertical movement) 
+    if (abs(lightTop - lightBottom) > deadZone) { 
+  if (lightTop > lightBottom && servoYPosition < 180) { 
+    servoYPosition++; 
+  } else if (lightBottom > lightTop && servoYPosition > 0) { 
+    servoYPosition--; 
+    } 
+} 
+    // Move servos to new positions 
+    servoX.write(servoXPosition); 
+    servoY.write(servoYPosition); 
+    delay(100); // Smooth movement 
+  } 
+  // Reset to default position if no light is detected for a long time 
+  if (millis() - lastLightTime > noLightTimeThreshold) { 
+    resetToDefault(); 
+                                                                                
+ 
+  } 
+  delay(100); // General loop delay 
+} 
+// Function to reset servos to default eastward position 
+void resetToDefault() { 
+  Serial.println("No light detected. Resetting to default position..."); 
+  // Move servos to default positions 
+  while (servoXPosition != 0) { 
+    if (servoXPosition > 0) servoXPosition--; 
+    else if (servoXPosition < 0) servoXPosition++; 
+    servoX.write(servoXPosition); 
+    delay(100); 
+  } 
+  while (servoYPosition != 0) { 
+    if (servoYPosition > 0) servoYPosition--; 
+    else if (servoYPosition < 0) servoYPosition++; 
+    servoY.write(servoYPosition); 
+    delay(100); 
+  } 
+}
