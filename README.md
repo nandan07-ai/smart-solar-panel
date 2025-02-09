@@ -1,0 +1,2 @@
+# smartsolarpanel
+My Mini Project
